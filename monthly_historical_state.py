@@ -74,6 +74,13 @@ for month in merval_historical_monthly_pct:
     avg_results.loc[
         'avg_result',
         month] = merval_historical_monthly_pct[month].mean()
+
+merval_cumsum_by_year = pd.DataFrame()
+for index in merval_historical_monthly_pct.index:
+    merval_cumsum_by_year.loc[
+        index,
+        '% cumsum by year'
+        ] = merval_historical_monthly_pct.loc[index].sum()
     
      
 
