@@ -42,7 +42,7 @@ for index2, fila in merval_resample.iterrows():
         index2.year,
         months[index2.month - 1]
         ] = fila['Adj Close']
-     
+
      
 
 merval_pct = pd.DataFrame()
@@ -59,7 +59,22 @@ for index3, fila_pct in merval_pct.iterrows():
         index3.year,
         months[index3.month - 1]
         ] = fila_pct['var pct-%']
-     
+
+#Hacer esto para los valores de 'merval_historical_monthly_pct' con el fin de
+#   evitar los nan, es un error grave ya que el promedio queda super desfasado
+#   con los valores pequeños de los primeros años. Acá es mucho más lógico.      
+merval_historical_monthly_pct.fillna(
+    #merval_historical_monthly_pct.mean(),
+    0,
+    inplace=True
+    )
+avg_results = pd.DataFrame()
+for month in merval_historical_monthly_pct:
+    #Le creo el índice con 'avg_result'
+    avg_results.loc[
+        'avg_result',
+        month] = merval_historical_monthly_pct[month].mean()
+    
      
 
      
