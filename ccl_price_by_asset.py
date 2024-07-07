@@ -1,6 +1,7 @@
 import yfinance as yf
 import datetime as dt
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def get_prices(market):
@@ -14,7 +15,7 @@ def get_prices(market):
                     ticker,
                     interval='1m',
                     period='1d'
-                    )['Adj Close'][-250:]
+                    )['Adj Close'][-90:]
                 )
         except Exception as e:
             print("No se pudo traer los datos", e)
@@ -66,13 +67,10 @@ usa_prices = []
 argy_prices = get_prices(argy)
 usa_prices = get_prices(usa)
 
-FALOPA = (argy_prices[0] * argy_ratios[0]) / usa_prices[0] 
-
 ccl_prices = pd.DataFrame(columns=usa)
 ccl_list= []
 
 for i, value in enumerate(usa):
-    print(usa[i])
     ccl_list.append(get_ccl(argy_prices[i], argy_ratios[i], usa_prices[i]))
    
     
@@ -84,68 +82,35 @@ for index, ccl_df in enumerate(ccl_list):
     ccl_by_ticker[usa[index]] = ccl_df['CCL']
 
 
+#Voy a Argy_prices, agarro el primer activo (puede ser cualquiera),
+#tomo su índice y se lo seteo al Df ccl_by_ticker porque quiero que los precios
+#que tenga el CCL, tengan fecha minuto a minuto en base al mercado argy.
+ccl_by_ticker.set_index(argy_prices[0].index, inplace=True)
+
+
+ccl_by_ticker.plot(figsize=(12, 8))
+
+plt.title("CCL Prices by asset -in real time-", fontsize=24)
+plt.suptitle("Last 90 minutes (01:30hs)")
+
+ccl_prices_day = argy_prices[0].index[-1].strftime('%Y-%m-%d')
+plt.xlabel(f"{ccl_prices_day}", fontsize=20)
+
+
+#Muestro exactamente los valores que toma cáda activo.
+for asset in ccl_by_ticker:
+    last_value = ccl_by_ticker[asset][-1]
+    plt.text(ccl_by_ticker.index[-1],
+             last_value,
+             f'{asset}- {last_value:.2f}', 
+             fontsize=10,
+             verticalalignment='center'
+             )
+    #Al ser muchos activos, la tabla, interfiere en la visualización.
+    plt.legend().set_visible(False)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#for i in range(len(argy_prices)):
-#    #print(argy[i], usa[i])
-#    ccl_prices = {
-#       f'{argy[i]} CCL' : (
-#       #Le mando, por posición, la serie argy y usa.    
-#       get_ccl(argy_prices[i], argy_ratios[i], usa_prices[i])
-#       )
-#    }
-    
-    
-
-#for i_series, series in enumerate(argy_prices):
-#    #print(f"{argy[i]}\n", argy_prices[i])
-#    print(argy[i_series])
-#    for i, value in enumerate(series):
-#        print(value)
-    
-    
-# ccl_prices = {
-#     f'{argy[i_series]} CCL' : (
-#         (series[i]*argy_ratios[i_series])/usa_prices[i]
-#     ) for i, value in enumerate(argy)
-#     }
-
-
-
-
-#for index, ticker in enumerate(argy):
-#    hola = yf.download(ticker, start=yesterday, end=today, interval='1m')['Adj Close']
-
-#print(hola)
 
 
