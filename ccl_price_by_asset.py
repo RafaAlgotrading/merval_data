@@ -47,10 +47,29 @@ def get_ccl(argy_series, ratios, usa_series):
     ccl_df['CCL'] = (ccl_df['Argy']*ratios)/ccl_df['USA']
     return ccl_df
     
-#bma_argy = yf.download('BMA.BA', interval='1d', period='ytd')['Adj Close'][-1]
-#bma_usa = yf.download('SPY', interval='1d', period='ytd')['Adj Close'][-1]
+def make_a_plot(ccl_by_ticker):
+    #Muestro exactamente los valores que toma cáda activo.
+    for asset in ccl_by_ticker:
+        last_value = ccl_by_ticker[asset][-1]
+        plt.text(ccl_by_ticker.index[-1],
+                 last_value,
+                 f'{asset}- {last_value:.2f}', 
+                 fontsize=10,
+                 verticalalignment='center'
+                 )
+        #Al ser muchos activos, la tabla, interfiere en la visualización.
+        plt.legend().set_visible(False)
 
-   
+def get_best_price(ccl_by_ticker, usa):
+    best_price = {}
+    lower = ccl_by_ticker[usa[0]][-1]
+    for i in range(len(usa) - 1):
+        if lower > ccl_by_ticker[usa[i+1]][-1]:
+            lower = ccl_by_ticker[usa[i+1]][-1]
+            best_price = {f'{usa[i+1]}':lower}
+    return best_price
+    
+
 
 #==================== PROGRAMA INICIAL ====================
 argy = ['SPY.BA', 'QQQ.BA', 'AAPL.BA', 'AMZN.BA', 'GOOGL.BA',
@@ -97,17 +116,9 @@ ccl_prices_day = argy_prices[0].index[-1].strftime('%Y-%m-%d')
 plt.xlabel(f"{ccl_prices_day}", fontsize=20)
 
 
-#Muestro exactamente los valores que toma cáda activo.
-for asset in ccl_by_ticker:
-    last_value = ccl_by_ticker[asset][-1]
-    plt.text(ccl_by_ticker.index[-1],
-             last_value,
-             f'{asset}- {last_value:.2f}', 
-             fontsize=10,
-             verticalalignment='center'
-             )
-    #Al ser muchos activos, la tabla, interfiere en la visualización.
-    plt.legend().set_visible(False)
+make_a_plot(ccl_by_ticker)
+best_price = get_best_price(ccl_by_ticker, usa)
+
 
 
 
